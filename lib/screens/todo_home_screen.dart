@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:todoapp/screens/todo_form.dart';
 
 class TodoHomeScreen extends StatefulWidget {
   const TodoHomeScreen({super.key});
@@ -22,22 +23,31 @@ class _TodoHomeScreenState extends State<TodoHomeScreen> {
         title: Text("Todo"),
       ),
       body: Expanded(
-          child: ListView.builder(
-              itemCount: _todos.length,
-              itemBuilder: (context, index) {
-                final todo = _todos[index];
-                return ListTile(
-                  leading:
-                      Checkbox(value: todo['isCompleted'], onChanged: null),
-                  title: Text(
-                    todo['title'] as String,
-                    style: TextStyle(
-                        decoration: (todo['isCompleted'] as bool)
-                            ? TextDecoration.lineThrough
-                            : TextDecoration.none),
-                  ),
-                );
-              })),
+        child: ListView.builder(
+          itemCount: _todos.length,
+          itemBuilder: (context, index) {
+            final todo = _todos[index];
+            return ListTile(
+              leading: Checkbox(value: todo['isCompleted'], onChanged: null),
+              title: Text(
+                todo['title'] as String,
+                style: TextStyle(
+                    decoration: (todo['isCompleted'] as bool)
+                        ? TextDecoration.lineThrough
+                        : TextDecoration.none),
+              ),
+            );
+          },
+        ),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          showModalBottomSheet(
+              context: context, builder: (context) => TodoForm());
+        },
+        tooltip: "Add a new task",
+        child: Icon(Icons.add),
+      ),
     );
   }
 }
