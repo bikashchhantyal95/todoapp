@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+import 'package:todoapp/models/todo_model.dart';
 import 'package:todoapp/screens/todo_form.dart';
 
 class TodoHomeScreen extends StatefulWidget {
@@ -9,23 +11,17 @@ class TodoHomeScreen extends StatefulWidget {
 }
 
 class _TodoHomeScreenState extends State<TodoHomeScreen> {
-  final List _todos = [
-    {'title': 'Buy groceries', 'isCompleted': false},
-    {'title': 'Finish Flutter project', 'isCompleted': true},
-    {'title': 'Call the plumber', 'isCompleted': false},
-    {'title': 'Go to the gym', 'isCompleted': true},
-    {'title': 'Prepare dinner', 'isCompleted': false},
-  ];
+  final List<Todo> _todos = [];
 
-  void _addTodo(String title) {
+  void _addTodo(String title, DateTime toBeCompletedDate) {
     setState(() {
-      _todos.add({'title': title, 'isCompleted': false});
+      _todos.add(Todo(title: title, completionDate: toBeCompletedDate));
     });
   }
 
   void _toggleTodo(int index) {
     setState(() {
-      _todos[index]['isCompleted'] = !_todos[index]['isCompleted'];
+      _todos[index].toggleTodo();
     });
   }
 
@@ -41,32 +37,37 @@ class _TodoHomeScreenState extends State<TodoHomeScreen> {
       appBar: AppBar(
         title: Text("Todo"),
       ),
-      body: ListView.builder(
-        itemCount: _todos.length,
-        itemBuilder: (context, index) {
-          final todo = _todos[index];
-          return ListTile(
-            leading: Checkbox(
-                value: todo['isCompleted'],
-                onChanged: (_) {
-                  _toggleTodo(index);
-                }),
-            title: Text(
-              todo['title'] as String,
-              style: TextStyle(
-                  decoration: (todo['isCompleted'] as bool)
-                      ? TextDecoration.lineThrough
-                      : TextDecoration.none),
+      body: _todos.isEmpty
+          ? const Center(child: Text("No tasks yet!!"))
+          : ListView.builder(
+              itemCount: _todos.length,
+              itemBuilder: (context, index) {
+                final todo = _todos[index];
+                return ListTile(
+                  leading: Checkbox(
+                      value: todo.isCompleted,
+                      onChanged: (_) {
+                        _toggleTodo(index);
+                      }),
+                  title: Text(
+                    todo.title,
+                    style: TextStyle(
+                        decoration: (todo.isCompleted)
+                            ? TextDecoration.lineThrough
+                            : TextDecoration.none),
+                  ),
+                  subtitle: Text(
+                    DateFormat.yMMMd().format(todo.completionDate),
+                  ),
+                  trailing: IconButton(
+                      onPressed: () => _deleteTodo(index),
+                      icon: Icon(
+                        Icons.delete,
+                        color: Colors.red,
+                      )),
+                );
+              },
             ),
-            trailing: IconButton(
-                onPressed: () => _deleteTodo(index),
-                icon: Icon(
-                  Icons.delete,
-                  color: Colors.red,
-                )),
-          );
-        },
-      ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           showModalBottomSheet(

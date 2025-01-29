@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 class TodoForm extends StatefulWidget {
-  final Function(String) onAddTodo;
+  final Function(String, DateTime) onAddTodo;
   const TodoForm({super.key, required this.onAddTodo});
 
   @override
@@ -11,6 +12,20 @@ class TodoForm extends StatefulWidget {
 class _TodoFormState extends State<TodoForm> {
   final _formKey = GlobalKey<FormState>();
   final todoTextController = TextEditingController();
+  DateTime? _selectedDate;
+
+  Future<void> _pickDate() async {
+    final DateTime? toBeCompletedDate = await showDatePicker(
+        context: context,
+        initialDate: DateTime.now(),
+        firstDate: DateTime.now(),
+        lastDate: DateTime(2101));
+    if (toBeCompletedDate != null && toBeCompletedDate != _selectedDate) {
+      setState(() {
+        _selectedDate = toBeCompletedDate;
+      });
+    }
+  }
 
   String? _validateTodo(String? title) {
     if (title == null || title.isEmpty) {
@@ -44,6 +59,20 @@ class _TodoFormState extends State<TodoForm> {
               ),
               SizedBox(height: 16),
               Row(
+                children: [
+                  Text(_selectedDate == null
+                      ? "Select Completion Date"
+                      : DateFormat.yMMMd().format(_selectedDate!)),
+                  IconButton(
+                    onPressed: _pickDate,
+                    icon: Icon(Icons.calendar_today),
+                  )
+                ],
+              ),
+              SizedBox(
+                height: 16,
+              ),
+              Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   TextButton(
@@ -54,9 +83,14 @@ class _TodoFormState extends State<TodoForm> {
                   ),
                   ElevatedButton(
                     onPressed: () {
-                      if (_formKey.currentState!.validate()) {
-                        widget.onAddTodo(todoTextController.text);
+                      if (_formKey.currentState!.validate() &&
+                          _selectedDate != null) {
+                        widget.onAddTodo(
+                            todoTextController.text, _selectedDate!);
                         Navigator.pop(context);
+                      } else if (_selectedDate == null) {
+                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                            content: Text("Please choose a completion date.")));
                       }
                     },
                     child: const Text('Add'),
