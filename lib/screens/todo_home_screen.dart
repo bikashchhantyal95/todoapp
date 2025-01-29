@@ -29,6 +29,12 @@ class _TodoHomeScreenState extends State<TodoHomeScreen> {
     });
   }
 
+  void _deleteTodo(int index) {
+    setState(() {
+      _todos.removeAt(index);
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -52,6 +58,12 @@ class _TodoHomeScreenState extends State<TodoHomeScreen> {
                       ? TextDecoration.lineThrough
                       : TextDecoration.none),
             ),
+            trailing: IconButton(
+                onPressed: () => _deleteTodo(index),
+                icon: Icon(
+                  Icons.delete,
+                  color: Colors.red,
+                )),
           );
         },
       ),
